@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -8,32 +9,45 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/eppeque/todo-server/models"
+	"github.com/eppeque/todo-server/infra"
 )
 
 func handleInterrupt() {
 	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
 		<-c
-		log.Println("Shutting down...")
+		infra.CloseDatabase()
 		os.Exit(0)
 	}()
 }
 
+func readFlag() int {
+	port := flag.Int("p", 8080, "The port number to listen to")
+	flag.Parse()
+	return *port
+}
+
+func initData() {
+	if err := infra.InitData(); err != nil {
+		log.Fatalln(err)
+	}
+}
+
 func main() {
-	config := models.InitConfig()
-	addr := fmt.Sprintf(":%d", config.Port)
+	initData()
+
+	port := readFlag()
+	addr := fmt.Sprintf(":%d", port)
 
 	handleInterrupt()
-	assignAPIHandlers(config)
+	assignAPIHandlers()
 	assignUIHandler()
 
-	log.Printf("Listening on port %d...\n", config.Port)
-	err := http.ListenAndServe(addr, nil)
+	log.Printf("Listening on port %d...\n", port)
 
-	if err != nil {
+	if err := http.ListenAndServe(addr, nil); err != nil {
 		log.Fatalln(err)
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/eppeque/todo-server/infra"
 	"github.com/eppeque/todo-server/models"
 	"github.com/eppeque/todo-server/security"
 )
@@ -28,22 +29,29 @@ func HandleRegister(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("Content-Type", "application/json")
 	body := &registerBody{}
-	err := json.NewDecoder(r.Body).Decode(body)
 
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(body); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(models.NewError("The request body is invalid"))
 		return
 	}
 
-	id, err := models.ServerConfig.AddUser(body.Username, body.Email, body.Password)
-
-	if err != nil {
+	if err := models.ServerRepository.AddUser(body.Username, body.Email, body.Password); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(models.NewError(err.Error()))
 		return
 	}
 
+	user, _ := models.NewUser(0, body.Username, body.Email, body.Password)
+	id, err := infra.Db.SaveUser(user)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(models.NewError("Something went wrong while saving the user"))
+		return
+	}
+
+	models.ServerRepository.SetIdToUser(user.Email, id)
 	token := security.CreateToken(id)
 	res := &registerResponse{token}
 	json.NewEncoder(w).Encode(res)

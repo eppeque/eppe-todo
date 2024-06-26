@@ -39,7 +39,7 @@ func HandleAccount(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := models.ServerConfig.UserFromId(id)
+	user := models.ServerRepository.GetUserFromId(id)
 
 	if user == nil {
 		w.WriteHeader(http.StatusBadRequest)

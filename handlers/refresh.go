@@ -24,9 +24,8 @@ func HandleRefresh(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("Content-Type", "application/json")
 	body := &refreshBody{}
-	err := json.NewDecoder(r.Body).Decode(body)
 
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(body); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(models.NewError("The request body is invalid"))
 		return

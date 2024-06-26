@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/eppeque/todo-server/models"
+	"github.com/eppeque/todo-server/infra"
 	"github.com/golang-jwt/jwt/v5"
 )
 
@@ -19,7 +19,7 @@ func CreateToken(id int) string {
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
 	})
 
-	secretKey := []byte(models.ServerConfig.SecretKey)
+	secretKey := []byte(infra.SecretKey)
 	signed, _ := token.SignedString(secretKey)
 	return signed
 }
@@ -27,7 +27,7 @@ func CreateToken(id int) string {
 func VerifyToken(token string) (int, error) {
 	claims := &customClaims{}
 	parsedToken, err := jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
-		return []byte(models.ServerConfig.SecretKey), nil
+		return []byte(infra.SecretKey), nil
 	})
 
 	if err != nil {

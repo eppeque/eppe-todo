@@ -27,15 +27,14 @@ func HandleLogin(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("Content-Type", "application/json")
 	body := &loginBody{}
-	err := json.NewDecoder(r.Body).Decode(body)
 
-	if err != nil {
+	if err := json.NewDecoder(r.Body).Decode(body); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(models.NewError("The request body is invalid"))
 		return
 	}
 
-	id, err := models.ServerConfig.CheckPassword(body.Email, body.Password)
+	id, err := models.ServerRepository.CheckPassword(body.Email, body.Password)
 
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
