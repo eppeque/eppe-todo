@@ -133,6 +133,22 @@ func (r *Repository) UpdateTodo(userId int, todo *Todo) {
 	}
 }
 
+func (r *Repository) DeleteTodo(userId, todoId int) {
+	todos := r.todos[userId]
+
+	if todos == nil {
+		return
+	}
+
+	for i, t := range todos {
+		if t.Id == todoId {
+			todos[i] = todos[len(todos)-1]
+			r.todos[userId] = todos[:len(todos)-1]
+			return
+		}
+	}
+}
+
 func filter(todos []*Todo, test func(*Todo) bool) (ret []*Todo) {
 	for _, todo := range todos {
 		if test(todo) {

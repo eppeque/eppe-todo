@@ -121,6 +121,11 @@ func (d *ServerDatabase) UpdateTodo(todo *models.Todo) error {
 	return err
 }
 
+func (d *ServerDatabase) DeleteTodo(id int) error {
+	_, err := d.db.Exec("delete from todos where rowid = ?;", id)
+	return err
+}
+
 func CloseDatabase() {
 	Db.Close()
 }

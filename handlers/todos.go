@@ -34,6 +34,10 @@ type putBody struct {
 	Done  bool   `json:"done"`
 }
 
+type deleteBody struct {
+	Id int `json:"id"`
+}
+
 func HandleTodos(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "PATCH" || r.Method == "HEAD" || r.Method == "OPTIONS" {
 		w.WriteHeader(http.StatusBadRequest)
@@ -69,7 +73,7 @@ func HandleTodos(w http.ResponseWriter, r *http.Request) {
 	case "PUT":
 		put(w, r, id)
 	case "DELETE":
-		delete()
+		delete(w, r, id)
 	default:
 		other(w, r)
 	}
@@ -148,11 +152,43 @@ func put(w http.ResponseWriter, r *http.Request, id int) {
 	}
 
 	models.ServerRepository.UpdateTodo(id, todo)
+
+	if err := infra.Db.UpdateTodo(todo); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(models.NewError("An error occured while updating the todo"))
+		return
+	}
+
 	res := putBody{body.Id, body.Title, body.Done}
 	json.NewEncoder(w).Encode(res)
 }
 
-func delete() {}
+func delete(w http.ResponseWriter, r *http.Request, id int) {
+	body := &deleteBody{}
+
+	if err := json.NewDecoder(r.Body).Decode(body); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(models.NewError("The request body is invalid"))
+		return
+	}
+
+	if !models.ServerRepository.IsTodoOwnedByUser(body.Id, id) {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(models.NewError("You're not authorized to delete this todo"))
+		return
+	}
+
+	models.ServerRepository.DeleteTodo(id, body.Id)
+
+	if err := infra.Db.DeleteTodo(body.Id); err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(models.NewError("An error occured while deleting the todo"))
+		return
+	}
+
+	res := models.NewError("Todo deleted successfully!")
+	json.NewEncoder(w).Encode(res)
+}
 
 func other(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusMethodNotAllowed)
