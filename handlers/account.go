@@ -23,14 +23,15 @@ func HandleAccount(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("Content-Type", "application/json")
 	auth := r.Header.Get("Authorization")
+	prefixLen := len("Bearer ")
 
-	if len(auth) == 0 {
+	if len(auth) < prefixLen {
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(models.NewError("You're not authorized to get this resource"))
 		return
 	}
 
-	token := auth[len("Bearer "):]
+	token := auth[prefixLen:]
 	id, err := security.VerifyToken(token)
 
 	if err != nil {

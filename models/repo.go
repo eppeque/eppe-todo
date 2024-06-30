@@ -1,21 +1,31 @@
 package models
 
-import "errors"
+import (
+	"errors"
+)
 
 type Repository struct {
 	users map[string]*User
+	todos map[int][]*Todo
 }
 
 var ServerRepository *Repository
 
-func NewRepository(users []*User) *Repository {
+func NewRepository(users []*User, todos []*Todo) *Repository {
 	usersMap := make(map[string]*User, len(users))
+	todosMap := make(map[int][]*Todo, len(users))
 
 	for _, user := range users {
 		usersMap[user.Email] = user
+
+		userTodos := filter(todos, func(todo *Todo) bool {
+			return todo.UserId == user.Id
+		})
+
+		todosMap[user.Id] = userTodos
 	}
 
-	return &Repository{usersMap}
+	return &Repository{usersMap, todosMap}
 }
 
 func (r *Repository) AddUser(username, email, password string) error {
@@ -39,6 +49,7 @@ func (r *Repository) SetIdToUser(email string, id int) error {
 	}
 
 	r.users[email].Id = id
+	r.todos[id] = []*Todo{}
 	return nil
 }
 
@@ -64,4 +75,39 @@ func (r *Repository) GetUserFromId(id int) *User {
 	}
 
 	return nil
+}
+
+func (r *Repository) AddTodo(title string, userId int) (*Todo, error) {
+	if r.todos[userId] == nil {
+		return nil, errors.New("no user found with given id")
+	}
+
+	todo, err := NewTodo(0, title, false, userId)
+
+	if err != nil {
+		return nil, err
+	}
+
+	r.todos[userId] = append(r.todos[userId], todo)
+	return todo, nil
+}
+
+func (r *Repository) GetUserTodos(userId int) ([]*Todo, error) {
+	todos := r.todos[userId]
+
+	if todos == nil {
+		return nil, errors.New("no todos found with the given user id")
+	}
+
+	return todos, nil
+}
+
+func filter(todos []*Todo, test func(*Todo) bool) (ret []*Todo) {
+	for _, todo := range todos {
+		if test(todo) {
+			ret = append(ret, todo)
+		}
+	}
+
+	return
 }

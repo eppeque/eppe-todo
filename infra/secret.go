@@ -27,12 +27,12 @@ func initSecret() (string, error) {
 }
 
 func newSecret() string {
-	result := []byte{}
+	result := make([]byte, 22)
 	chars := "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 
-	for range 22 {
+	for i := range 22 {
 		index := rand.Intn(len(chars))
-		result = append(result, chars[index])
+		result[i] = chars[index]
 	}
 
 	return string(result)

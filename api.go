@@ -16,7 +16,13 @@ func assignAPIHandlers() {
 		log.Fatalln(err)
 	}
 
-	models.ServerRepository = models.NewRepository(users)
+	todos, err := infra.Db.GetAllTodos()
+
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	models.ServerRepository = models.NewRepository(users, todos)
 
 	http.HandleFunc("/api/register", handlers.HandleRegister)
 	http.HandleFunc("/api/login", handlers.HandleLogin)
