@@ -116,6 +116,11 @@ func (d *ServerDatabase) GetAllTodos() (todos []*models.Todo, err error) {
 	return
 }
 
+func (d *ServerDatabase) UpdateTodo(todo *models.Todo) error {
+	_, err := d.db.Exec("update todos set title = ?, done = ? where rowid = ?", todo.Title, todo.Done, todo.Id)
+	return err
+}
+
 func CloseDatabase() {
 	Db.Close()
 }

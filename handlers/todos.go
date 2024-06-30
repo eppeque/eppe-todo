@@ -28,6 +28,12 @@ type getResponse struct {
 	Todos []*todoDTO `json:"todos"`
 }
 
+type putBody struct {
+	Id    int    `json:"id"`
+	Title string `json:"title"`
+	Done  bool   `json:"done"`
+}
+
 func HandleTodos(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "PATCH" || r.Method == "HEAD" || r.Method == "OPTIONS" {
 		w.WriteHeader(http.StatusBadRequest)
@@ -61,7 +67,7 @@ func HandleTodos(w http.ResponseWriter, r *http.Request) {
 	case "POST":
 		post(w, r, id)
 	case "PUT":
-		put()
+		put(w, r, id)
 	case "DELETE":
 		delete()
 	default:
@@ -118,13 +124,35 @@ func post(w http.ResponseWriter, r *http.Request, id int) {
 	json.NewEncoder(w).Encode(res)
 }
 
-func put() {
+func put(w http.ResponseWriter, r *http.Request, id int) {
+	body := &putBody{}
 
+	if err := json.NewDecoder(r.Body).Decode(body); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(models.NewError("The request body is invalid"))
+		return
+	}
+
+	if !models.ServerRepository.IsTodoOwnedByUser(body.Id, id) {
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(models.NewError("You're not authorized to modify this todo"))
+		return
+	}
+
+	todo, err := models.NewTodo(body.Id, body.Title, body.Done, id)
+
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(models.NewError(err.Error()))
+		return
+	}
+
+	models.ServerRepository.UpdateTodo(id, todo)
+	res := putBody{body.Id, body.Title, body.Done}
+	json.NewEncoder(w).Encode(res)
 }
 
-func delete() {
-
-}
+func delete() {}
 
 func other(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusMethodNotAllowed)

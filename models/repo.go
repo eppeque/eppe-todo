@@ -102,6 +102,37 @@ func (r *Repository) GetUserTodos(userId int) ([]*Todo, error) {
 	return todos, nil
 }
 
+func (r *Repository) IsTodoOwnedByUser(todoId, userId int) bool {
+	todos := r.todos[userId]
+
+	if todos == nil {
+		return false
+	}
+
+	for _, todo := range todos {
+		if todo.Id == todoId {
+			return true
+		}
+	}
+
+	return false
+}
+
+func (r *Repository) UpdateTodo(userId int, todo *Todo) {
+	todos := r.todos[userId]
+
+	if todos == nil {
+		return
+	}
+
+	for i, t := range todos {
+		if t.Id == todo.Id {
+			todos[i] = todo
+			return
+		}
+	}
+}
+
 func filter(todos []*Todo, test func(*Todo) bool) (ret []*Todo) {
 	for _, todo := range todos {
 		if test(todo) {
