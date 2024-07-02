@@ -7,11 +7,11 @@ import (
 	"net/http"
 )
 
-//go:embed ui/*
+//go:embed ui/build/*
 var folder embed.FS
 
 func assets() (fs.FS, error) {
-	return fs.Sub(folder, "ui")
+	return fs.Sub(folder, "ui/build")
 }
 
 func assignUIHandler() {
