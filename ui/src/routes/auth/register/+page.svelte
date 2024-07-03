@@ -2,6 +2,8 @@
   import Form from "$lib/components/Form.svelte";
   import Title from "$lib/components/Title.svelte";
   import type { InputData } from "$lib/InputData";
+  import { PROVIDER_CTX, StoreProvider } from "$lib/provider";
+  import { getContext } from "svelte";
 
   const inputs: InputData[] = [
     {
@@ -30,6 +32,8 @@
     },
   ];
 
+  const provider = getContext<StoreProvider>(PROVIDER_CTX);
+
   let errorMessage = "";
 
   async function handleSubmit(e: SubmitEvent) {
@@ -49,22 +53,10 @@
       return;
     }
 
-    // Requête HTTP à envoyer...
-    const res = await fetch("http://localhost:8080/api/register", {
-      method: "POST",
-      body: JSON.stringify({
-        username,
-        email,
-        password,
-      }),
-    });
-
-    const json = await res.json();
-
-    if (res.ok) {
-      console.log(json);
-    } else {
-      errorMessage = json.message;
+    try {
+      await provider.authStore.register(username, email, password);
+    } catch (e: any) {
+      errorMessage = e;
     }
   }
 </script>
