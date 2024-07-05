@@ -1,3 +1,15 @@
+<script lang="ts">
+  import { PROVIDER_CTX, StoreProvider } from "$lib/provider";
+  import { checkNotAuth } from "$lib/redirect";
+  import { getContext, onMount } from "svelte";
+
+  const provider = getContext<StoreProvider>(PROVIDER_CTX);
+
+  onMount(() => {
+    checkNotAuth(provider.authStore);
+  });
+</script>
+
 <svelte:head>
   <title>Introducing Eppe Todo</title>
 </svelte:head>

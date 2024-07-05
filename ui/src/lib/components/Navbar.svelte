@@ -1,5 +1,10 @@
-<script>
+<script lang="ts">
+  import { getContext } from "svelte";
   import Navlink from "./Navlink.svelte";
+  import { PROVIDER_CTX, StoreProvider } from "$lib/provider";
+
+  const provider = getContext<StoreProvider>(PROVIDER_CTX);
+  const user = provider.authStore;
 
   let opened = false;
 
@@ -37,14 +42,19 @@
       class="material-symbols-outlined fixed top-6 right-6 md:hidden"
       on:click={close}>close</button
     >
-    <Navlink text="Home" url="/" />
-    <Navlink text="Sign In" url="/auth/login" />
-    <li>
-      <a
-        href="/auth/register"
-        class="py-2 px-4 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 text-white font-semibold text-sm shadow-sm rounded-md"
-        >Sign Up</a
-      >
-    </li>
+    {#if $user === null}
+      <Navlink text="Home" url="/" />
+      <Navlink text="Sign In" url="/auth/login" />
+      <li>
+        <a
+          href="/auth/register"
+          class="py-2 px-4 bg-gradient-to-r from-cyan-500 to-teal-500 hover:from-cyan-600 hover:to-teal-600 text-white font-semibold text-sm shadow-sm rounded-md"
+          >Sign Up</a
+        >
+      </li>
+    {:else}
+      <Navlink text="Todos" url="/todos" />
+      <Navlink text="Account" url="/auth/account" />
+    {/if}
   </ul>
 </nav>

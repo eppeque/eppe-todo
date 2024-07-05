@@ -9,13 +9,11 @@
 
   const provider = createContext();
 
-  // TODO: Implement login + use local storage + refresh token
+  onMount(async () => {
+    await provider.authStore.init();
 
-  onMount(() => {
-    return provider.authStore.subscribe((user) => {
+    provider.authStore.subscribe((user) => {
       const url = get(page).url.pathname;
-
-      console.log(url);
 
       if (url === "/todos" && user === null) {
         goto("/");

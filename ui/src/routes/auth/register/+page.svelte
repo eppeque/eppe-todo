@@ -3,7 +3,8 @@
   import Title from "$lib/components/Title.svelte";
   import type { InputData } from "$lib/InputData";
   import { PROVIDER_CTX, StoreProvider } from "$lib/provider";
-  import { getContext } from "svelte";
+  import { checkNotAuth } from "$lib/redirect";
+  import { getContext, onMount } from "svelte";
 
   const inputs: InputData[] = [
     {
@@ -35,6 +36,10 @@
   const provider = getContext<StoreProvider>(PROVIDER_CTX);
 
   let errorMessage = "";
+
+  onMount(() => {
+    checkNotAuth(provider.authStore);
+  });
 
   async function handleSubmit(e: SubmitEvent) {
     e.preventDefault();
