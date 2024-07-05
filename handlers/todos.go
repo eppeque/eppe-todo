@@ -15,7 +15,8 @@ type postBody struct {
 }
 
 type postResponse struct {
-	Message string `json:"message"`
+	Id    int    `json:"id"`
+	Title string `json:"title"`
 }
 
 type todoDTO struct {
@@ -123,8 +124,7 @@ func post(w http.ResponseWriter, r *http.Request, id int) {
 
 	todo.Id = todoId
 
-	msg := fmt.Sprintf("Todo '%s' successfully created!", todo.Title)
-	res := &postResponse{msg}
+	res := &postResponse{todo.Id, todo.Title}
 	json.NewEncoder(w).Encode(res)
 }
 

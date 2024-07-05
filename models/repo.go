@@ -79,7 +79,7 @@ func (r *Repository) GetUserFromId(id int) *User {
 
 func (r *Repository) AddTodo(title string, userId int) (*Todo, error) {
 	if r.todos[userId] == nil {
-		return nil, errors.New("no user found with given id")
+		r.todos[userId] = []*Todo{}
 	}
 
 	todo, err := NewTodo(0, title, false, userId)

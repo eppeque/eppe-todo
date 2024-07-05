@@ -1,11 +1,14 @@
 import { setContext } from "svelte";
 import { authStore, type AuthStore } from "./auth";
+import { type TodoStore, todoStore } from "./todos";
 
 export class StoreProvider {
   public authStore: AuthStore;
+  public todoStore: TodoStore;
 
   constructor() {
     this.authStore = authStore;
+    this.todoStore = todoStore;
   }
 }
 

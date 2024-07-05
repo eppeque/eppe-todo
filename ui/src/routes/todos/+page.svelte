@@ -5,11 +5,24 @@
   import { getContext, onMount } from "svelte";
 
   const provider = getContext<StoreProvider>(PROVIDER_CTX);
-  const authStore = provider.authStore;
+  const todos = provider.todoStore;
 
-  onMount(() => {
-    checkAuth(authStore);
+  onMount(async () => {
+    checkAuth(provider.authStore);
+
+    const token = localStorage.getItem("auth");
+
+    if (token !== null) {
+      await todos.init(token);
+    }
   });
 </script>
 
 <Title text="Your todos" />
+<ul>
+  {#if $todos}
+    {#each $todos as todo}
+      <li>{todo.title}</li>
+    {/each}
+  {/if}
+</ul>

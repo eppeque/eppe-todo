@@ -15,8 +15,10 @@
 
 <Title text="Your account" />
 <Card>
-  <p><span class="font-semibold">Username: </span>{$user?.username}</p>
-  <p><span class="font-semibold">Email address: </span>{$user?.email}</p>
+  <p><span class="font-semibold">Username: </span>{$user?.username ?? "N/A"}</p>
+  <p>
+    <span class="font-semibold">Email address: </span>{$user?.email ?? "N/A"}
+  </p>
   <button
     class="py-2 px-4 mt-4 bg-red-500 hover:bg-red-400 text-white text-sm font-semibold shadow-sm rounded-md"
     on:click={user.signOut}>Sign Out</button
