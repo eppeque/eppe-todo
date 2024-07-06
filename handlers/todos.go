@@ -93,6 +93,10 @@ func get(w http.ResponseWriter, userId int) {
 		return &todoDTO{todo.Id, todo.Title, todo.Done}
 	})
 
+	if dtos == nil {
+		dtos = []*todoDTO{}
+	}
+
 	res := getResponse{dtos}
 	json.NewEncoder(w).Encode(res)
 }

@@ -1,10 +1,10 @@
-<script>
+<script lang="ts">
   import Navbar from "$lib/components/Navbar.svelte";
   import { onMount } from "svelte";
   import "../app.css";
   import { createContext } from "$lib/provider";
-  import { page } from "$app/stores";
   import { get } from "svelte/store";
+  import { page } from "$app/stores";
   import { goto } from "$app/navigation";
 
   const provider = createContext();
@@ -19,13 +19,16 @@
 
       const url = get(page).url.pathname;
 
-      if (url === "/todos" && user === null) {
-        goto("/");
-      } else if (
-        (url === "/" || url == "/auth/register" || url === "/auth/login") &&
-        user !== null
+      if (
+        (url === "/" || url === "/auth/login" || url === "/auth/register") &&
+        user
       ) {
         goto("/todos");
+        return;
+      }
+
+      if ((url === "/todos" || url === "/auth/account") && user) {
+        goto("/");
       }
     });
   });
