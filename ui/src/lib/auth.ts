@@ -38,6 +38,8 @@ function createStore(): AuthStore {
       }
 
       const refreshedToken = await _refreshToken(token);
+      localStorage.setItem("auth", refreshedToken);
+
       const user = await _accountData(refreshedToken);
       set(user);
     },

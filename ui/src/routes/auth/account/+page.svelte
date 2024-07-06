@@ -13,6 +13,10 @@
   });
 </script>
 
+<svelte:head>
+  <title>Your account - Eppe Todo</title>
+</svelte:head>
+
 <Title text="Your account" />
 <Card>
   <p><span class="font-semibold">Username: </span>{$user?.username ?? "N/A"}</p>

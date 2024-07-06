@@ -13,6 +13,10 @@
     await provider.authStore.init();
 
     provider.authStore.subscribe((user) => {
+      if (user) {
+        provider.todoStore.init();
+      }
+
       const url = get(page).url.pathname;
 
       if (url === "/todos" && user === null) {
