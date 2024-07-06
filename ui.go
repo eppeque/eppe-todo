@@ -5,6 +5,9 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+	"os"
+	"path"
+	"strings"
 )
 
 //go:embed ui/build/*
@@ -22,5 +25,22 @@ func assignUIHandler() {
 	}
 
 	handler := http.FileServer(http.FS(ui))
-	http.Handle("/", http.StripPrefix("/", handler))
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/" {
+			handler.ServeHTTP(w, r)
+			return
+		}
+
+		f, err := ui.Open(strings.TrimPrefix(path.Clean(r.URL.Path), "/"))
+
+		if err == nil {
+			defer f.Close()
+		}
+
+		if os.IsNotExist(err) {
+			r.URL.Path += ".html"
+		}
+
+		handler.ServeHTTP(w, r)
+	})
 }
