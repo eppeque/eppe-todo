@@ -4,6 +4,7 @@
   export let id: number;
   export let title: string;
   export let done: boolean;
+  export let showDivider: boolean;
 
   const dispatcher = createEventDispatcher();
 
@@ -18,7 +19,7 @@
   }
 </script>
 
-<li class="flex items-center gap-4 py-2">
+<li class="flex items-center gap-4 py-2" class:border-b-2={showDivider}>
   <input type="checkbox" bind:checked={done} class="w-4" />
   <span class="text-lg" class:line-through={done}>{title}</span>
 

@@ -44,8 +44,13 @@
   class="block w-[90%] md:w-[75%] mx-auto my-4 p-3 outline-none border-2 border-gray-200 rounded-md focus:border-teal-500"
 />
 <ul class="my-4 w-[90%] md:w-[75%] mx-auto bg-gray-100 p-10 rounded-lg">
-  {#each $todos as todo (todo.id)}
-    <Todo {...todo} on:checked={onChecked} on:delete={onDelete} />
+  {#each $todos as todo, i (todo.id)}
+    <Todo
+      {...todo}
+      showDivider={i < $todos.length - 1}
+      on:checked={onChecked}
+      on:delete={onDelete}
+    />
   {:else}
     <p class="text-center text-lg">You have no todos yet...</p>
   {/each}
