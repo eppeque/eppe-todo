@@ -5,6 +5,7 @@
   import { getContext, onMount } from "svelte";
   import { StoreProvider, PROVIDER_CTX } from "$lib/provider";
   import { checkNotAuth } from "$lib/redirect";
+  import { goto } from "$app/navigation";
 
   const inputs: InputData[] = [
     {
@@ -40,6 +41,7 @@
 
     try {
       await provider.authStore.login(email, password);
+      await goto("/todos");
     } catch (e: any) {
       errorMessage = e;
     }
@@ -51,7 +53,9 @@
 </svelte:head>
 
 <div class="h-[80vh] flex justify-center items-center">
-  <div class="shadow-xl rounded-lg p-20 text-center">
+  <div
+    class="shadow-xl rounded-lg p-10 w-full md:w-[75%] lg:w-[60%] text-center"
+  >
     <Title text="Sign In" />
     {#if errorMessage}
       <p class="py-2 text-red-600">{errorMessage}</p>

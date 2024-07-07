@@ -15,6 +15,7 @@ export interface TodoStore {
   init: () => Promise<void>;
   add: (title: string) => Promise<void>;
   update: (id: number, title: string, done: boolean) => Promise<void>;
+  delete: (id: number) => Promise<void>;
 }
 
 export const todoStore = createStore();
@@ -55,6 +56,14 @@ function createStore(): TodoStore {
         todo.done = done;
         return todos;
       });
+    },
+    delete: async (id) => {
+      const token = localStorage.getItem("auth");
+
+      if (token === null) return;
+
+      await _deleteTodo(token, id);
+      update((todos) => todos.filter((t) => t.id !== id));
     },
   };
 }
@@ -117,6 +126,25 @@ async function _updateTodo(
       id,
       title,
       done,
+    }),
+  });
+
+  const json = await res.json();
+
+  if (!res.ok) {
+    throw new Error(json.message);
+  }
+}
+
+async function _deleteTodo(token: string, id: number) {
+  const res = await fetch("http://localhost:8080/api/todos", {
+    method: "DELETE",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      id,
     }),
   });
 

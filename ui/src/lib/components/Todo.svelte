@@ -12,9 +12,18 @@
     title,
     done,
   });
+
+  function remove() {
+    dispatcher("delete", { id });
+  }
 </script>
 
-<li class="flex gap-4 py-2">
+<li class="flex items-center gap-4 py-2">
   <input type="checkbox" bind:checked={done} class="w-4" />
   <span class="text-lg" class:line-through={done}>{title}</span>
+
+  <button
+    class="material-symbols-outlined text-red-600 hover:bg-gray-300 p-2 rounded-full"
+    on:click={remove}>delete</button
+  >
 </li>

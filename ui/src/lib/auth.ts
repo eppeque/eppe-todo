@@ -5,13 +5,12 @@ import {
   type Unsubscriber,
 } from "svelte/store";
 import type { User } from "./User";
-import { goto } from "$app/navigation";
 
 export interface AuthStore {
   subscribe: (
     this: void,
-    run: Subscriber<User | null>,
-    invalidate?: Invalidator<User | null> | undefined
+    run: Subscriber<AuthState>,
+    invalidate?: Invalidator<AuthState> | undefined
   ) => Unsubscriber;
   register: (
     username: string,
@@ -23,10 +22,18 @@ export interface AuthStore {
   signOut: () => void;
 }
 
+export interface AuthState {
+  initializing: boolean;
+  user: User | null;
+}
+
 export const authStore = createStore();
 
 function createStore(): AuthStore {
-  const { subscribe, set } = writable<User | null>(null);
+  const { subscribe, set, update } = writable<AuthState>({
+    initializing: true,
+    user: null,
+  });
 
   return {
     subscribe,
@@ -34,6 +41,7 @@ function createStore(): AuthStore {
       const token = localStorage.getItem("auth");
 
       if (token === null) {
+        set({ initializing: false, user: null });
         return;
       }
 
@@ -41,25 +49,34 @@ function createStore(): AuthStore {
       localStorage.setItem("auth", refreshedToken);
 
       const user = await _accountData(refreshedToken);
-      set(user);
+      set({ initializing: false, user: user });
     },
     register: async (username: string, email: string, password: string) => {
       const token = await _register(username, email, password);
 
       localStorage.setItem("auth", token);
-      set({ username, email });
+      update((old) => {
+        old.user = { username, email };
+        return old;
+      });
     },
     login: async (email: string, password: string) => {
       const token = await _login(email, password);
       const user = await _accountData(token);
 
       localStorage.setItem("auth", token);
-      set(user);
+      update((old) => {
+        old.user = user;
+        return old;
+      });
     },
     signOut: () => {
       localStorage.removeItem("auth");
-      set(null);
-      goto("/");
+
+      update((old) => {
+        old.user = null;
+        return old;
+      });
     },
   };
 }
