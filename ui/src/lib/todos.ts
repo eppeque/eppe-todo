@@ -5,6 +5,7 @@ import {
   type Unsubscriber,
 } from "svelte/store";
 import type { Todo } from "./Todo";
+import { url } from "./url";
 
 export interface TodoStore {
   subscribe: (
@@ -68,8 +69,10 @@ function createStore(): TodoStore {
   };
 }
 
+const todosUrl = url + "/todos";
+
 async function _userTodos(token: string): Promise<Todo[]> {
-  const res = await fetch("http://localhost:8080/api/todos", {
+  const res = await fetch(todosUrl, {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
@@ -86,7 +89,7 @@ async function _userTodos(token: string): Promise<Todo[]> {
 }
 
 async function _addTodo(token: string, title: string): Promise<Todo> {
-  const res = await fetch("http://localhost:8080/api/todos", {
+  const res = await fetch(todosUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -116,7 +119,7 @@ async function _updateTodo(
   title: string,
   done: boolean
 ) {
-  const res = await fetch("http://localhost:8080/api/todos", {
+  const res = await fetch(todosUrl, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -137,7 +140,7 @@ async function _updateTodo(
 }
 
 async function _deleteTodo(token: string, id: number) {
-  const res = await fetch("http://localhost:8080/api/todos", {
+  const res = await fetch(todosUrl, {
     method: "DELETE",
     headers: {
       "Content-Type": "application/json",

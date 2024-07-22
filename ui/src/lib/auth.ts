@@ -5,6 +5,7 @@ import {
   type Unsubscriber,
 } from "svelte/store";
 import type { User } from "./User";
+import { url } from "./url";
 
 export interface AuthStore {
   subscribe: (
@@ -86,7 +87,7 @@ async function _register(
   email: string,
   password: string
 ): Promise<string> {
-  const res = await fetch("http://localhost:8080/api/register", {
+  const res = await fetch(url + "/register", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -108,7 +109,7 @@ async function _register(
 }
 
 async function _login(email: string, password: string): Promise<string> {
-  const res = await fetch("http://localhost:8080/api/login", {
+  const res = await fetch(url + "/login", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -129,7 +130,7 @@ async function _login(email: string, password: string): Promise<string> {
 }
 
 async function _accountData(token: string): Promise<User> {
-  const res = await fetch("http://localhost:8080/api/account", {
+  const res = await fetch(url + "/account", {
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
@@ -146,7 +147,7 @@ async function _accountData(token: string): Promise<User> {
 }
 
 async function _refreshToken(token: string): Promise<string> {
-  const res = await fetch("http://localhost:8080/api/refresh", {
+  const res = await fetch(url + "/refresh", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
